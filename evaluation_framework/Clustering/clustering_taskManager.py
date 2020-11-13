@@ -134,7 +134,7 @@ class ClusteringManager (AbstractTaskManager):
             'model_name', 'model_configuration', 'num_clusters',
             'adjusted_rand_index', 'adjusted_mutual_info_score',
             'homogeneity_score', 'completeness_score', 'v_measure_score',
-            'normalized_mutual_info_score', 'clustering_accuracy'
+            'normalized_mutual_info_score', 'silhouette_score', 'clustering_accuracy'
         ]
         
         with open(results_folder+'/clustering_'+gold_standard_filename+'_results.csv', 'w') as csv_file:
@@ -205,5 +205,5 @@ class ClusteringManager (AbstractTaskManager):
     def get_metric_list():
         return [
             'adjusted_rand_index', 'adjusted_mutual_info_score', 'homogeneity_score', 'completeness_score',
-            'v_measure_score', 'normalized_mutual_info_score', 'clustering_accuracy'
+            'v_measure_score', 'normalized_mutual_info_score', 'silhouette_score', 'clustering_accuracy'
         ]

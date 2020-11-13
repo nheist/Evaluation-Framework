@@ -120,6 +120,10 @@ class ClusteringModel(AbstractModel):
         if self.debugging_mode:
             print(self.name + ' Normalized mutual info score : ' + str(normalized_mutual_info_score))
 
+        silhouette_score = metrics.silhouette_score(data, labels)
+        if self.debugging_mode:
+            print(self.name + ' Silhouette_score : ' + str(silhouette_score))
+
         clustering_accuracy = self._compute_clustering_accuracy(trueLabels, labels)
         if self.debugging_mode:
             print(self.name + ' Clustering accuracy : ' + str(clustering_accuracy))
@@ -135,6 +139,7 @@ class ClusteringModel(AbstractModel):
             'completeness_score': round(completeness_score, float_precision),
             'v_measure_score': round(v_measure_score, float_precision),
             'normalized_mutual_info_score': round(normalized_mutual_info_score, float_precision),
+            'silhouette_score': round(silhouette_score, float_precision),
             'clustering_accuracy': round(clustering_accuracy, float_precision)
         }
 
