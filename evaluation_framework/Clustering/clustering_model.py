@@ -60,31 +60,36 @@ class ClusteringModel(AbstractModel):
             raise ValueError(
                 ("Clustering : Cannot have number of cluster n_clusters="+str(self.n_clusters)+" greater"
                  " than the number of samples: "+str(n_samples)+".\n"))
-        
+
+        # compute cluster labels using the given model
         data = merged.iloc[:, 2:].values
         data = StandardScaler().fit_transform(data)
-        
         cluster_method = eval(self.model).fit(data)
-        
         labels = cluster_method.labels_
 
+        # put unclustered examples (having -1 as value) in separate clusters
         n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
-               
         for index, value in enumerate(labels):
             if value == -1:
                 labels[index] = n_clusters
                 n_clusters += 1
-                
+
+        # compute the silhouette score *before* any ignored examples are appended to the computed cluster labels
+        silhouette_score = metrics.silhouette_score(data, labels)
+        if self.debugging_mode:
+            print(self.name + ' Silhouette_score : ' + str(silhouette_score))
+
+        # put all the ignored examples in a single cluster
         ignoredLabels = [n_clusters] * len(ignored)
         labels = np.concatenate((labels, ignoredLabels), axis=0)
         labels = np.array(labels, dtype=np.float_)
 
-        if self.debugging_mode:
-            print(self.name + ' Number of clusters : ' + str(n_clusters))
-
         trueLabels = merged['cluster']
         trueLabels = pd.concat([trueLabels, ignored['cluster']], ignore_index=True, axis=0)
         trueLabels = trueLabels.values
+
+        if self.debugging_mode:
+            print(self.name + ' Number of clusters : ' + str(n_clusters))
                 
         if labels.ndim!=1:
             raise ValueError(
@@ -119,10 +124,6 @@ class ClusteringModel(AbstractModel):
         normalized_mutual_info_score = metrics.normalized_mutual_info_score(trueLabels, labels)
         if self.debugging_mode:
             print(self.name + ' Normalized mutual info score : ' + str(normalized_mutual_info_score))
-
-        silhouette_score = metrics.silhouette_score(data, labels)
-        if self.debugging_mode:
-            print(self.name + ' Silhouette_score : ' + str(silhouette_score))
 
         clustering_accuracy = self._compute_clustering_accuracy(trueLabels, labels)
         if self.debugging_mode:
